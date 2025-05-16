@@ -68,8 +68,8 @@ export default function UserRow() {
     const isEmpty = Object.values(formData).some(value => String(value).trim() === '');
     if (isEmpty) {
         setError({
-            title: "Missing Fields",
-            message: 'All fields must be field'
+            title: "Missing Fields!!",
+            message: 'All fields must be filled'
         });
         return;
     }
@@ -77,7 +77,7 @@ export default function UserRow() {
     const nameRegex = /^[A-Za-z\s]+$/;
     if(!nameRegex.test(formData.name)|| !nameRegex.test(formData.gender)) {
         setError({
-            title:"Invalid Input",
+            title:"Invalid Input!!!",
             message:'Name and Gender must contain letters only'
         });
         
@@ -87,7 +87,7 @@ export default function UserRow() {
     const numberRegex = /^[0-9]+$/;
     if(!numberRegex.test(formData.phone) || !numberRegex.test(formData.age)) {
         setError({
-            title:"Invalid Input",
+            title:"Invalid Input!!",
             message:'Age and Phone must contain numbers only'
         });
         
