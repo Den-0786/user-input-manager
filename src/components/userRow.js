@@ -11,11 +11,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { title } from 'process';
 
 export default function UserRow() {
 
-    const [users, setUsers] = useState([])
-    const [error, setError] = useState(false)
+    const [users, setUsers] = useState([]);
+    const emptyError = {title: '', message: ''};
+    const [error, setError] = useState(emptyError);
     const [formData, setFormData] = useState(
         {
             name: '',
@@ -29,6 +31,7 @@ export default function UserRow() {
     const [editIndex, setEditIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     const openMenu = (event, index) => {
         setAnchorEl(event.currentTarget);
@@ -38,13 +41,19 @@ export default function UserRow() {
         setAnchorEl(null);
         setSelectedIndex(null);
     };
-
-    const handleDelete = () => {
+    const confirmDelete = () =>{
         const updatedUsers = [...users];
         updatedUsers.splice(selectedIndex, 1);
         setUsers(updatedUsers);
         closeMenu();
+        setShowConfirmDelete(false);
+    }
+
+    const handleDeleteClick = () => {
+        setShowConfirmDelete(true)
+        closeMenu();
     };
+    
 
     const handleEdit = () => {
         const user = users[selectedIndex]
@@ -58,19 +67,30 @@ export default function UserRow() {
 
     const isEmpty = Object.values(formData).some(value => String(value).trim() === '');
     if (isEmpty) {
-        setError('All fields must be field')
+        setError({
+            title: "Missing Fields",
+            message: 'All fields must be field'
+        });
         return;
     }
 
     const nameRegex = /^[A-Za-z\s]+$/;
     if(!nameRegex.test(formData.name)|| !nameRegex.test(formData.gender)) {
-        setError('Name and Gender must contain letters only')
+        setError({
+            title:"Invalid Input",
+            message:'Name and Gender must contain letters only'
+        });
+        
         return;
     }
 
     const numberRegex = /^[0-9]+$/;
     if(!numberRegex.test(formData.phone) || !numberRegex.test(formData.age)) {
-        setError('Age and Phone must contain numbers only')
+        setError({
+            title:"Invalid Input",
+            message:'Age and Phone must contain numbers only'
+        });
+        
         return;
     };
     
@@ -85,7 +105,10 @@ export default function UserRow() {
     }
 
     setFormData({name: '', age: '', gender: '', phone: '', });
-    setError('');
+    setEditIndex(null);
+    setError(emptyError);
+    setAnchorEl(null);
+    setSelectedIndex(null);
     
     };
 
@@ -95,7 +118,14 @@ export default function UserRow() {
 
     return(
     <div >
-        <ErrorMessage message={error} className='mb-2'></ErrorMessage>
+        {error.message && (
+            <ErrorMessage 
+                title={error.title}
+                message={error.message}
+                className='mb-2'>
+            </ErrorMessage>
+        )}
+        
         <form onSubmit={submitHandler} >
             <div className='flex flex-col gap-2 bg-white rounded-lg'>
                 <div className="flex flex-col flex-1 min-w-[150px] mt-2">
@@ -174,10 +204,32 @@ export default function UserRow() {
                     <EditIcon fontSize='small' className='mr-2'/>Edit
                 </MenuItem>
 
-                <MenuItem onClick={handleDelete}>
+                <MenuItem onClick={handleDeleteClick}>
                     <DeleteIcon fontSize='small' className='mr-2'/>Delete
                 </MenuItem>
             </Menu>
+        {showConfirmDelete && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 ">
+                <div className='bg-white p-4 rounded-lg text-center'>
+                    <h3 className='text-lg font-semibold mb-2 text-gray-700'>Confirm Delete</h3>
+                    <p className="mb-4 text-gray-700">Are you sure you want to delete this user?</p>
+                    <div className="flex justify-center gap-4">
+                        <button
+                            onClick={confirmDelete}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                        >
+                            Yes
+                        </button>
+                        <button
+                            onClick={() => setShowConfirmDelete(false)}
+                            className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+                        >
+                            No
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
     )
 }
